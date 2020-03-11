@@ -3,10 +3,71 @@ Notes on working with the cosmwasm-based smart contracts in the Enigma Blockchai
 
 Started here: https://github.com/confio/cosmwasm-template
 
+## Prerequisites:
+1. [Enigma Testnet with CosmWasm](https://github.com/enigmampc/EnigmaBlockchain/releases/tag/v0.1.0)
+#### Download
+```
+wget https://github.com/enigmampc/EnigmaBlockchain/releases/download/v0.1.0/enigma-blockchain_0.1.0_amd64.deb
+```
+#### Install 
+```
+sudo dpkg -i enigmachain*.deb
+```
+
+#### Configure:
+
+```bash
+##### Set the testnet chain-id
+enigmacli config chain-id enigma-testnet
+```
+
+```bash
+enigmacli config output json
+```
+
+```bash
+enigmacli config indent true
+```
+
+```bash
+##### Set the full node address
+enigmacli config node tcp://bootstrap.testnet.enigma.co:26657
+```
+
+```bash
+##### Verify everything you receive from the full node
+enigmacli config trust-node false
+```
+
+#### Check the installation:
+```bash
+enigmacli status
+```
+
+2. Create and fund a test account, eg developer as used throughout the rest of this doc
+- Add account
+```
+enigmacli keys add developer
+```
+The output contains the new address, which you can also query with 
+```
+enigmacli keys show developer -a
+```
+
+- Fund account
+[Enigma Testnet faucet](https://faucet.testnet.enigma.co/)
+Confirm it's funded by checking the balance
+```
+enigmacli query account $(enigmacli keys show developer -a)
+```
+
+3. [Docker](https://docs.docker.com/install/)
+
+
 ## Setup
 These are the steps required to get setup to use _compute_ (Enigma Blockchain's initial implementation of cosmwasm smart contracts)
 
-NOTE: the latest release I used (0.1.0) is only for Debian so I setup a Linode Debian instance and did all of the required installs.
+NOTE: the latest release I used (0.1.0) is only for Debian/Ubuntu
 
 1. Install rustup
 ```
@@ -21,7 +82,7 @@ $ sudo apt-get install build-essential manpages-dev
 
 2. Install pkg-config
 ```
-$ sudo apt-get install pig-config
+$ sudo apt-get install pkg-config
 ```
 
 3. Install cargo generate
@@ -87,14 +148,17 @@ Before deploying or storing the contract on the testnet, need to install Docker 
 
 If you don't already have Docker installed,
 
-https://docs.docker.com/install/linux/docker-ce/debian/
+https://docs.docker.com/install/
 
 ### Optimize compiled wasm
 
 ```
-docker run --rm -v $(pwd):/code \ --mount type=volume,source=$(basename $(pwd))_cache,target=/code/target \ --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \ confio/cosmwasm-opt:0.7.0
+docker run --rm -v $(pwd):/code \
+  --mount type=volume,source=$(basename $(pwd))_cache,target=/code/target \
+  --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \
+  confio/cosmwasm-opt:0.7.0
 ```
-The contract wasm needs to be optimized to get a smaller footprint. Cosmwasm notes state the contract would be too large for the blockchain unless optimized.
+The contract wasm needs to be optimized to get a smaller footprint. Cosmwasm notes state the contract would be too large for the blockchain unless optimized. This example contract.wasm is 1.8M before optimizing, 90K after.
 
 The optimization creates two files:
 - contract.wasm
@@ -102,10 +166,10 @@ The optimization creates two files:
 
 ### Store the Smart Contract on Testnet
 
-Uploaded the optimized contract.wasm to the enigma-testnet:
+Upload the optimized contract.wasm to the enigma-testnet:
 
 ```
-enigmacli tx compute store contract.wasm --from pigeonpoint --gas 420000 -y
+enigmacli tx compute store contract.wasm --from developer --gas 420000 -y
 ```
 
 The gas amount _420000_ came from the examples in the cosmwasm docs.
