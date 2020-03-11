@@ -39,6 +39,11 @@ enigmacli config node tcp://bootstrap.testnet.enigma.co:26657
 enigmacli config trust-node false
 ```
 
+#### Check the installation:
+```bash
+enigmacli status
+```
+
 2. Create and fund a test account, eg developer as used throughout the rest of this doc
 - Add account
 ```
