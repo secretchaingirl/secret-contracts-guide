@@ -1,4 +1,4 @@
-# enigma-blockchain-developer-experience
+# enigma-dev-x
 Notes on working with the cosmwasm-based smart contracts in the Enigma Blockchain
 
 ## Resources
