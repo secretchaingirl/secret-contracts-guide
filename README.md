@@ -1,7 +1,12 @@
 # enigma-blockchain-developer-experience
 Notes on working with the cosmwasm-based smart contracts in the Enigma Blockchain
 
-Started here: https://github.com/confio/cosmwasm-template
+## Resources
+
+- [cosmwasm repo](https://github.com/CosmWasm/cosmwasm)
+- [cosmwasm starter pack - project template](https://github.com/confio/cosmwasm-template)
+- [Setting up a local "devnet"](https://www.cosmwasm.com/docs/getting-started/using-the-sdk)
+- [cosmwasm docs](https://www.cosmwasm.com/docs/intro/overview) 
 
 ## Prerequisites:
 1. [Enigma Testnet with CosmWasm](https://github.com/enigmampc/EnigmaBlockchain/releases/tag/v0.1.0)
