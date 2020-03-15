@@ -202,7 +202,7 @@ $ enigmacli query compute list-code
 ]
 ```
 
-MINE is #2!!
+Our contract is the 2nd one in the list above.
 
 ### Instantiate the Smart Contract
 
