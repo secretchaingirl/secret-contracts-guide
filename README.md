@@ -206,9 +206,32 @@ MINE is #2!!
 
 ### Instantiate the Smart Contract
 
-At this point the contract's been uploaded and stored on the testnet, but there's no "instance." This is like `discovery migrate` which handles both the deploying and creation of the contract instance.
+At this point the contract's been uploaded and stored on the testnet, but there's no "instance." 
+This is like `discovery migrate` which handles both the deploying and creation of the contract instance, except in Cosmos the deploy-execute process consists of 3 steps rather than 2 in Ethereum.
 
-_Working on this. Not as straightforward. Trying to understand the example contract that came with the template repo and what's required to create an instance. It looks like a simple contract that handles maintaining a coin balance. It gets instantiated with a coin count, allows incrementing, getting the current count of owner coins and resetting the count to a specified value._
+To create an instance of this project we must also provide some JSON input data, a starting count.
+
+```bash
+INIT="{\"count\": 100000000}"
+enigmacli tx compute instantiate 2 "$INIT" --from developer --label "my counter" -y
+```
+
+With the contract now initialized, we can find it's address
+```bash
+enigmacli query compute list-contract-by-code 2
+```
+Our instance is enigma1gv07846a3867ezn3uqkk082c5ftke7hpwhpqzz
+
+We can query the contract state
+```bash
+CONTRACT=enigma1gv07846a3867ezn3uqkk082c5ftke7hpwhpqzz
+enigmacli query compute contract-state smart $CONTRACT "{\"getcount\": {}}"
+```
+
+And we can increment our counter
+```bash
+enigmacli tx compute execute $CONTRACT "{\"increment\": {}}" --from developer
+```
 
 ## Smart Contract
 
