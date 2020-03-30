@@ -4,8 +4,8 @@ Notes on working with the cosmwasm-based smart contracts in the Enigma Blockchai
 ## Resources
 
 - [cosmwasm repo](https://github.com/CosmWasm/cosmwasm)
-- [cosmwasm starter pack - project template](https://github.com/confio/cosmwasm-template)
-- [Setting up a local "devnet"](https://www.cosmwasm.com/docs/getting-started/using-the-sdk)
+- [cosmwasm starter pack - project template](https://github.com/CosmWasm/cosmwasm-template)
+- [Setting up a local "testnet"](https://www.cosmwasm.com/docs/getting-started/using-the-sdk)
 - [cosmwasm docs](https://www.cosmwasm.com/docs/intro/overview) 
 
 ## Prerequisites:
@@ -16,10 +16,10 @@ wget https://github.com/enigmampc/EnigmaBlockchain/releases/download/v0.1.0/enig
 ```
 #### Install 
 ```
-sudo dpkg -i enigmachain*.deb
+sudo dpkg -i enigma-blockchain*.deb
 ```
 
-#### Configure:
+#### Configure the client:
 
 ```bash
 ##### Set the testnet chain-id
@@ -54,7 +54,7 @@ enigmacli status
 ```
 enigmacli keys add developer
 ```
-The output contains the new address, which you can also query with 
+The output contains the new address, which you can query with the cli
 ```
 enigmacli keys show developer -a
 ```
@@ -66,7 +66,7 @@ Confirm it's funded by checking the balance
 enigmacli query account $(enigmacli keys show developer -a)
 ```
 
-3. [Docker](https://docs.docker.com/install/)
+2. [Docker](https://docs.docker.com/install/)
 
 
 ## Setup
@@ -137,13 +137,14 @@ cargo integration-test
 
 ## Generate Msg Schemas
 
+We can also generate JSON Schemas that serve as a guide for anyone trying to use the contract. To specify which arguments they need.
+
 Auto-generate msg schemas (when changed):
 
 ```
 cargo schema
 ```
 
-Schemas are json representations of the messages handled by the smart contract.
 
 ## Deploy Smart Contract
 
@@ -174,10 +175,13 @@ The optimization creates two files:
 Upload the optimized contract.wasm to the enigma-testnet:
 
 ```
-enigmacli tx compute store contract.wasm --from developer --gas 420000 -y
+enigmacli tx compute store contract.wasm --from developer --gas auto -y
 ```
 
-The gas amount _420000_ came from the examples in the cosmwasm docs.
+Uploading verified code requires 2 additional params, source and builder
+```
+
+```
 
 ### Querying the Smart Contract and Code
 
@@ -312,7 +316,95 @@ mod tests {
         assert_eq!(17, value.count);
     }
 ...
+
+```
+## Local dev with Docker and CosmWasm CLI
+
+### Docker setup
+
+```bash
+# Start enigmachain
+docker run -d -p 26657:26657 -p 26656:26656 -p 1317:1317 \
+ -v ~/.enigmad:/root/.enigmad -v ~/.enigmacli:/root/.enigmacli \
+ -v $(pwd):/code \
+ --name enigmadev enigmadev
+
+# Start the rest API server
+docker exec enigmadev \
+  enigmacli rest-server \
+  --node tcp://localhost:26657 \
+  --trust-node \
+  --laddr tcp://0.0.0.0:1317  
 ```
 
+### CosmWasm CLI
+#### Resources:
 
+- name-app
 
+[Name Service Introduction](https://www.cosmwasm.com/docs/name-service/intro)
+
+[name-app repo](https://github.com/CosmWasm/name-app)
+
+- REPL
+
+[CosmWasm CLI](https://github.com/CosmWasm/cosmwasm-js/blob/master/packages/cli/README.md)
+
+[CosmWasmClient Part 1: Reading](https://medium.com/confio/cosmwasmclient-part-1-reading-e0313472a158)
+
+```bash
+# Install cosmwasm in your project with yarn (See docs for other options)
+yarn add @cosmwasm/cli --dev
+
+# Start cli
+./node_modules/.bin/cosmwasm-cli --init helpers.ts
+
+```
+
+```bash
+# Configure custom network so we use the local enigma testnet
+
+const enigmaOptions = {
+  httpUrl: "http://localhost:1317",
+  networkId: "enigma-testnet",
+  feeToken: "uscrt",
+  gasPrice: 0.025,
+  bech32prefix: "enigma",
+}
+
+# load or create Mnemonic from file
+const mnemonic = loadOrCreateMnemonic("foo.key");
+
+# connect to enigmachain
+const {address, client} = await connect(mnemonic, enigmaOptions);
+
+# show all code and contracts
+client.getCodes()
+
+# get account, if empty use a faucet or send some uscrt
+client.getAccount();
+
+# query the first contract for first code
+const contracts = await client.getContracts(1);
+
+# show info like the init message
+const info = await client.getContract(contracts[0].address)
+info
+info.initMsg
+
+const contractAddress = contracts[0].address
+
+# Query the current counter value
+smartQuery(client, contractAddress, { getcount: {} })
+
+# Increment the counter
+const execMsg = { increment: {}}
+const exec = await client.execute(contractAddress, execMsg);
+exec
+exec.logs[0].events[0]
+smartQuery(client, fooAddr, { balance: { address: rcpt } })
+
+# Confirm the counter incremented
+smartQuery(client, contractAddress, { getcount: {} })
+
+```
