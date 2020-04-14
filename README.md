@@ -26,7 +26,7 @@ docker run --name enigmadev -t enigmadev
 **NOTE**: The engimadev docker container can be stopped using `docker stop enigmadev` and re-started 
 using `docker start -i enigmadev`.
 
-In another terminal run a `bash` shell in the `enigmachain` container:
+In another terminal run a `bash` shell in the `enigmadev` container:
 ```
 docker exec -it enigmadev /bin/bash
 ```
