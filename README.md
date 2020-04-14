@@ -1,75 +1,55 @@
 # enigma-dev-x
-Notes on working with the cosmwasm-based smart contracts in the Enigma Blockchain
 
-## Resources
+This repository can be used to get up and running on a local Enigma Blockchain developer testnet (enigmadev) to start working with the cosmwasm-based smart contracts (soon to be secret contracts!).
 
-- [cosmwasm repo](https://github.com/CosmWasm/cosmwasm)
-- [cosmwasm starter pack - project template](https://github.com/CosmWasm/cosmwasm-template)
-- [Setting up a local "testnet"](https://www.cosmwasm.com/docs/getting-started/using-the-sdk)
-- [cosmwasm docs](https://www.cosmwasm.com/docs/intro/overview) 
+## Setup the Local Developer Testnet
 
-## Prerequisites:
-1. [Enigma Testnet with CosmWasm](https://github.com/enigmampc/EnigmaBlockchain/releases/tag/v0.1.0)
-#### Download
+1. Install [Docker](https://docs.docker.com/install/)
+
+2. Clone the EnigmaBlockchain repository:
+
 ```
-wget https://github.com/enigmampc/EnigmaBlockchain/releases/download/v0.1.0/enigma-blockchain_0.1.0_amd64.deb
-```
-#### Install 
-```
-sudo dpkg -i enigma-blockchain*.deb
+$ git clone https://github.com/enigmampc/EnigmaBlockchain.git
 ```
 
-#### Configure the client:
-
-```bash
-##### Set the testnet chain-id
-enigmacli config chain-id enigma-testnet
+3. Build the local _enigmadev_ blockchain docker image:
+```
+docker build -f .\Dockerfile_build -t enigmadev .
 ```
 
-```bash
-enigmacli config output json
+4. Run the Docker _enigmadev_ image:
+
+```
+docker run --name enigmadev -t enigmadev
 ```
 
-```bash
-enigmacli config indent true
+**NOTE**: The engimadev docker container can be stopped using `docker stop enigmadev` and re-started 
+using `docker start -i enigmadev`.
+
+In another terminal run a `bash` shell in the `enigmachain` container:
+```
+docker exec -it enigmadev /bin/bash
 ```
 
-```bash
-##### Set the full node address
-enigmacli config node tcp://bootstrap.testnet.enigma.co:26657
+Check the keys:
 ```
+enigmacli keys list --keyring-backend test
+````
 
-```bash
-##### Verify everything you receive from the full node
-enigmacli config trust-node false
-```
-
-#### Check the installation:
-```bash
-enigmacli status
-```
-
-2. Create and fund a test account, eg developer as used throughout the rest of this doc
-- Add account
-```
-enigmacli keys add developer
-```
-The output contains the new address, which you can query with the cli
-```
-enigmacli keys show developer -a
-```
-
-- Fund account
-[Enigma Testnet faucet](https://faucet.testnet.enigma.co/)
-Confirm it's funded by checking the balance
-```
-enigmacli query account $(enigmacli keys show developer -a)
-```
-
-2. [Docker](https://docs.docker.com/install/)
+![](enigmacli-keys-list.png)
 
 
-## Setup
+The local blockchain is configured with the following addresses:
+```
+address a: enigma1hczr6ps3vfjcsatj6l75hsuunfhzyzf9gpgpyq
+
+address b: enigma1u93mxyscasnf3ukpd7shs88zusfjw98fn0ljxz
+
+```
+
+
+## Setup Enigma Smart Contracts (cosmwasm)
+
 These are the steps required to get setup to use _compute_ (Enigma Blockchain's initial implementation of cosmwasm smart contracts)
 
 NOTE: the latest release I used (0.1.0) is only for Debian/Ubuntu
@@ -408,3 +388,10 @@ smartQuery(client, fooAddr, { balance: { address: rcpt } })
 smartQuery(client, contractAddress, { getcount: {} })
 
 ```
+
+## Resources
+
+- [cosmwasm repo](https://github.com/CosmWasm/cosmwasm)
+- [cosmwasm starter pack - project template](https://github.com/CosmWasm/cosmwasm-template)
+- [Setting up a local "testnet"](https://www.cosmwasm.com/docs/getting-started/using-the-sdk)
+- [cosmwasm docs](https://www.cosmwasm.com/docs/intro/overview) 
