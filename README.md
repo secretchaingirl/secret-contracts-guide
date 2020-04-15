@@ -2,6 +2,11 @@
 
 This repository can be used to get up and running on a local Enigma Blockchain developer testnet (enigmadev) to start working with the cosmwasm-based smart contracts (soon to be secret contracts!).
 
+A few important notes:
+- smart contracts in this repo are a precursor to Enigma's Secret Contracts, which enable data privacy
+- smart contracts are written in Rust and based on cosmwasm, and the module is referred to as `compute` in the Enigma Blockchain. This will be also true of Secret Contracts!
+- these cosmwasm-based smart contracts should be reusable and easily modified once we incorporate data privacy
+
 ## Setup the Local Developer Testnet
 
 1. Install [Docker](https://docs.docker.com/install/)
@@ -52,7 +57,7 @@ address b: enigma1u93mxyscasnf3ukpd7shs88zusfjw98fn0ljxz
 
 These are the steps required to get setup to use _compute_ (Enigma Blockchain's initial implementation of cosmwasm smart contracts)
 
-NOTE: the latest release I used (0.1.0) is only for Debian/Ubuntu
+NOTE: the latest release used (0.1.0) is only for Debian/Ubuntu
 
 1. Install rustup
 ```
@@ -191,7 +196,10 @@ Our contract is the 2nd one in the list above.
 ### Instantiate the Smart Contract
 
 At this point the contract's been uploaded and stored on the testnet, but there's no "instance." 
-This is like `discovery migrate` which handles both the deploying and creation of the contract instance, except in Cosmos the deploy-execute process consists of 3 steps rather than 2 in Ethereum.
+This is like `discovery migrate` which handles both the deploying and creation of the contract instance, except in Cosmos the deploy-execute process consists of 3 steps rather than 2 in Ethereum. You can read more about the logic behind this decision, and other comparisons to Solidity, in the [cosmwasm documentation](https://www.cosmwasm.com/docs/getting-started/smart-contracts). These steps are:
+1. Upload Code - Upload some optimized wasm code, no state nor contract address (example Standard ERC20 contract)
+2. Instantiate Contract - Instantiate a code reference with some initial state, creates new address (example set token name, max issuance, etc for my ERC20 token)
+3. Execute Contract - This may support many different calls, but they are all unprivileged usage of a previously instantiated contract, depends on the contract design (example: Send ERC20 token, grant approval to other contract)
 
 To create an instance of this project we must also provide some JSON input data, a starting count.
 
@@ -200,7 +208,7 @@ INIT="{\"count\": 100000000}"
 enigmacli tx compute instantiate 2 "$INIT" --from developer --label "my counter" -y
 ```
 
-With the contract now initialized, we can find it's address
+With the contract now initialized, we can find its address
 ```bash
 enigmacli query compute list-contract-by-code 2
 ```
@@ -390,6 +398,7 @@ smartQuery(client, contractAddress, { getcount: {} })
 ```
 
 ## Resources
+Smart Contracts in the Enigma Blockchain use cosmwasm. Therefore, for troubleshooting and additional context, cosmwasm documentation may be very useful. Here are some of the links we relied on in putting together this guide:
 
 - [cosmwasm repo](https://github.com/CosmWasm/cosmwasm)
 - [cosmwasm starter pack - project template](https://github.com/CosmWasm/cosmwasm-template)
