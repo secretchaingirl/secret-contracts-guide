@@ -19,16 +19,17 @@ $ git clone https://github.com/enigmampc/EnigmaBlockchain.git
 
 3. Build the local _enigmadev_ blockchain docker image:
 ```
-docker build -f .\Dockerfile_build -t enigmadev .
+docker build -t enigmadev2 -f Dockerfile_devnet .
 ```
 
 4. Run the Docker _enigmadev_ image:
 
 ```
-docker run --name enigmadev -t enigmadev
+docker run -d -p 26657:26657 -p 26656:26656 -p 1317:1317 \
+ --name enigmadev enigmadev
 ```
 
-**NOTE**: The engimadev docker container can be stopped using `docker stop enigmadev` and re-started 
+**NOTE**: The enigmadev docker container can be stopped using `docker stop enigmadev` and re-started 
 using `docker start -i enigmadev`.
 
 In another terminal run a `bash` shell in the `enigmadev` container:
