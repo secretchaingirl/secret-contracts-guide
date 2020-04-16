@@ -42,7 +42,9 @@ docker image ls enigmadev
 Now that we've created the local EnigmaBlockchain docker image we can run it as a container:
 
 ```
-docker run --name enigmadev -t enigmadev
+docker run -d \
+ -p 26657:26657 -p 26656:26656 -p 1317:1317 \
+ --name enigmadev enigmadev
 ```
 
 ![](docker-run.png)
@@ -87,37 +89,29 @@ This process is similar to `discovery init` and `discovery start` and may be str
 
 These are the steps required to get setup to use _compute_ (Enigma Blockchain's initial implementation of cosmwasm smart contracts)
 
-NOTE: the latest release used (0.1.0) is only for Debian/Ubuntu
-
-1. Install rustup
+1. Install Rust, using the rustup installer
 ```
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-2. Install cc
-```
-$ sudo apt-get update
-$ sudo apt-get install build-essential manpages-dev
-```
-
-2. Install pkg-config
-```
-$ sudo apt-get install pkg-config
-```
-
-3. Install cargo generate
+2. Install cargo generate
 ```
 cargo install cargo-generate --features vendored-openssl
 ```
 
-4. Add rustup target wasm32
+3. Add rustup target wasm32 for both stable and nightly
 ```
+rustup default stable
+rustup target list --installed
 rustup target add wasm32-unknown-unknown
+
+rustup install nightly
+rustup target add wasm32-unknown-unknown --toolchain nightly
 ```
 
 ## Create Initial Smart Contract
 
-1. Generate the smart contract project
+4. Generate the smart contract project
 ```
 cargo generate --git https://github.com/confio/cosmwasm-template.git --name <your-project-name>
 ```
@@ -152,7 +146,7 @@ cargo integration-test
 
 ## Generate Msg Schemas
 
-We can also generate JSON Schemas that serve as a guide for anyone trying to use the contract. To specify which arguments they need.
+We can also generate JSON Schemas that serve as a guide for anyone trying to use the contract, to specify which arguments they need.
 
 Auto-generate msg schemas (when changed):
 
@@ -163,13 +157,7 @@ cargo schema
 
 ## Deploy Smart Contract
 
-Before deploying or storing the contract on the testnet, need to install Docker and run the cosmwasm optimizer.
-
-### Install Docker for Debian
-
-If you don't already have Docker installed,
-
-https://docs.docker.com/install/
+Before deploying or storing the contract on the testnet, need to run the cosmwasm optimizer.
 
 ### Optimize compiled wasm
 
@@ -177,7 +165,7 @@ https://docs.docker.com/install/
 docker run --rm -v $(pwd):/code \
   --mount type=volume,source=$(basename $(pwd))_cache,target=/code/target \
   --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \
-  confio/cosmwasm-opt:0.7.0
+  confio/cosmwasm-opt:0.7.3
 ```
 The contract wasm needs to be optimized to get a smaller footprint. Cosmwasm notes state the contract would be too large for the blockchain unless optimized. This example contract.wasm is 1.8M before optimizing, 90K after.
 
@@ -193,9 +181,12 @@ Upload the optimized contract.wasm to the enigma-testnet:
 enigmacli tx compute store contract.wasm --from developer --gas auto -y
 ```
 
-Uploading verified code requires 2 additional params, source and builder
-```
+You can also store [verified code](https://www.cosmwasm.com/docs/tooling/verify)
 
+Uploading verified code requires 2 additional params, source of the crate, and the builder that optimized the compiled wasm.
+
+```
+enigmacli tx compute store contract.wasm --builder="confio/cosmwasm-opt:0.7.3" --source="https://crates.io/api/v1/crates/<your-project-name>/0.0.1/download" --from developer --gas auto -y
 ```
 
 ### Querying the Smart Contract and Code
@@ -335,97 +326,6 @@ mod tests {
     }
 ...
 
-```
-## Local dev with Docker and CosmWasm CLI
-
-### Docker setup
-
-```bash
-# Start enigmachain
-docker run -d -p 26657:26657 -p 26656:26656 -p 1317:1317 \
- -v ~/.enigmad:/root/.enigmad -v ~/.enigmacli:/root/.enigmacli \
- -v $(pwd):/code \
- --name enigmadev enigmadev
-
-# Start the rest API server
-docker exec enigmadev \
-  enigmacli rest-server \
-  --node tcp://localhost:26657 \
-  --trust-node \
-  --laddr tcp://0.0.0.0:1317  
-```
-
-### CosmWasm CLI
-#### Resources:
-
-- name-app
-
-[Name Service Introduction](https://www.cosmwasm.com/docs/name-service/intro)
-
-[name-app repo](https://github.com/CosmWasm/name-app)
-
-- REPL
-
-[CosmWasm CLI](https://github.com/CosmWasm/cosmwasm-js/blob/master/packages/cli/README.md)
-
-[CosmWasmClient Part 1: Reading](https://medium.com/confio/cosmwasmclient-part-1-reading-e0313472a158)
-
-```bash
-# Install cosmwasm in your project with yarn (See docs for other options)
-yarn add @cosmwasm/cli --dev
-
-# Start cli
-./node_modules/.bin/cosmwasm-cli --init helpers.ts
-
-```
-
-```bash
-# Configure custom network so we use the local enigma testnet
-
-const enigmaOptions = {
-  httpUrl: "http://localhost:1317",
-  networkId: "enigma-testnet",
-  feeToken: "uscrt",
-  gasPrice: 0.025,
-  bech32prefix: "enigma",
-}
-
-# load or create Mnemonic from file
-const mnemonic = loadOrCreateMnemonic("foo.key");
-
-# connect to enigmachain
-const {address, client} = await connect(mnemonic, enigmaOptions);
-
-# show all code and contracts
-client.getCodes()
-
-# get account, if empty use a faucet or send some uscrt
-client.getAccount();
-
-# query the first contract for first code
-const contracts = await client.getContracts(1);
-
-# show info like the init message
-const info = await client.getContract(contracts[0].address)
-info
-info.initMsg
-
-const contractAddress = contracts[0].address
-
-# Query the current counter value
-smartQuery(client, contractAddress, { getcount: {} })
-
-# Increment the counter
-const execMsg = { increment: {}}
-const exec = await client.execute(contractAddress, execMsg);
-exec
-exec.logs[0].events[0]
-smartQuery(client, fooAddr, { balance: { address: rcpt } })
-
-# Confirm the counter incremented
-smartQuery(client, contractAddress, { getcount: {} })
-
-```
 
 ## Resources
 Smart Contracts in the Enigma Blockchain use cosmwasm. Therefore, for troubleshooting and additional context, cosmwasm documentation may be very useful. Here are some of the links we relied on in putting together this guide:
