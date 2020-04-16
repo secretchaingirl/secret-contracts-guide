@@ -9,34 +9,59 @@ A few important notes:
 
 ## Setup the Local Developer Testnet
 
-1. Install [Docker](https://docs.docker.com/install/)
+The developer blockchain is configured to run inside a docker container. Install [Docker](https://docs.docker.com/install/) for your environment (Mac, Windows, Linux).
 
-2. Clone the EnigmaBlockchain repository:
+Open a terminal window and change to your project directory. Then clone the EnigmaBlockchain repository:
 
 ```
 $ git clone https://github.com/enigmampc/EnigmaBlockchain.git
 ```
 
-3. Build the local _enigmadev_ blockchain docker image:
+Change directory:
+
 ```
-docker build -f .\Dockerfile_build -t enigmadev .
+$ cd EnigmaBlockchain
 ```
 
-4. Run the Docker _enigmadev_ image:
+In the same terminal, create the docker image by issuing the build command and tagging it as _enigmadev_. We'll use that tag later instead of the container id, which can be a bit cryptic and hard to remember.
+
+The command below tells Docker to follow the instructions in the Dockerfile_devnet to build the image.
+
+```
+docker build -f Dockerfile_devnet -t enigmadev .
+```
+
+![](docker-build.png)
+
+To verify the _enigmadev_ docker image was created:
+
+```
+docker image ls enigmadev
+```
+
+Now that we've created the local EnigmaBlockchain docker image we can run it as a container:
 
 ```
 docker run --name enigmadev -t enigmadev
 ```
 
-**NOTE**: The engimadev docker container can be stopped using `docker stop enigmadev` and re-started 
+![](docker-run.png)
+
+
+**NOTE**: The _engimadev_ docker container can be stopped by using (in a separate terminal) `docker stop enigmadev` and re-started 
 using `docker start -i enigmadev`.
 
-In another terminal run a `bash` shell in the `enigmadev` container:
+
+At this point you're running a local EnigmaBlockchain full-node.
+
+In another terminal run a `bash` shell in the `enigmadev` container so we can view and manage the enigma keys:
+
 ```
 docker exec -it enigmadev /bin/bash
 ```
 
-Check the keys:
+The local blockchain has a couple of keys setup for you (similar to accounts if you're familiar with Truffle Ganache). The keys are stored in the `test` keyring backend, which makes it easier for local development and testing.
+
 ```
 enigmacli keys list --keyring-backend test
 ````
@@ -44,13 +69,18 @@ enigmacli keys list --keyring-backend test
 ![](enigmacli-keys-list.png)
 
 
-The local blockchain is configured with the following addresses:
-```
-address a: enigma1hczr6ps3vfjcsatj6l75hsuunfhzyzf9gpgpyq
+At this point you've:
 
-address b: enigma1u93mxyscasnf3ukpd7shs88zusfjw98fn0ljxz
+1. Created the local Enigma developer testnet
 
-```
+2. Started the EnigmaBlockchain
+
+3. Listed the keys/accounts 
+
+
+This process is similar to `discovery init` and `discovery start` and may be streamlined in the future.
+
+
 
 
 ## Setup Enigma Smart Contracts (cosmwasm)
