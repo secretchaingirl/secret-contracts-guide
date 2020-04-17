@@ -173,12 +173,21 @@ The optimization creates two files:
 - contract.wasm
 - hash.txt
 
-### Store the Smart Contract on Testnet
+### Store the Smart Contract on our local Testnet
+
+```
+# First lets start it up again, this time mounting our project's code inside the container.
+docker run -d -p 26657:26657 -p 26656:26656 -p 1317:1317 \
+ -v $(pwd):/root/code \
+ --name enigmadev enigmadev
+ ```
 
 Upload the optimized contract.wasm to the enigma-testnet:
 
 ```
-enigmacli tx compute store contract.wasm --from developer --gas auto -y
+cd code
+
+enigmacli tx compute store contract.wasm --from a --gas auto -y --keyring-backend test
 ```
 
 You can also store [verified code](https://www.cosmwasm.com/docs/tooling/verify)
@@ -186,33 +195,27 @@ You can also store [verified code](https://www.cosmwasm.com/docs/tooling/verify)
 Uploading verified code requires 2 additional params, source of the crate, and the builder that optimized the compiled wasm.
 
 ```
-enigmacli tx compute store contract.wasm --builder="confio/cosmwasm-opt:0.7.3" --source="https://crates.io/api/v1/crates/<your-project-name>/0.0.1/download" --from developer --gas auto -y
+enigmacli tx compute store contract.wasm \
+--builder="confio/cosmwasm-opt:0.7.3" \
+--source="https://crates.io/api/v1/crates/<your-project-name>/0.0.1/download" \
+--from a --gas auto -y
 ```
 
 ### Querying the Smart Contract and Code
 
-12. List current smart contract code on testnet
+12. List current smart contract code
 ```
-$ enigmacli query compute list-code
+enigmacli query compute list-code
 [
   {
     "id": 1,
-    "creator": "enigma1vch5dkz89a7hp3nn0ycrlr9y798nlk7qs0encd",
-    "data_hash": "3DFA55F790A636C11AE2936473734A4D271D441F32D0CFCD7AC19C17B162F85B",
-    "source": "https://crates.io/api/v1/crates/cw-erc20/0.3.0/download",
-    "builder": "confio/cosmwasm-opt:0.7.3"
-  },
-  {
-    "id": 2,
-    "creator": "enigma1d5gs5mekx9kggjlxjx08gz98ragulw6gu8s2vs",
-    "data_hash": "D4FA35C5F7A0547727BAE923F320F925FCD4562634D753E1E9C27D03CB823D01",
+    "creator": "enigma1klqgym9m7pcvhvgsl8mf0elshyw0qhruy4aqxx",
+    "data_hash": "0C667E20BA2891536AF97802E4698BD536D9C7AB36702379C43D360AD3E40A14",
     "source": "",
     "builder": ""
   }
 ]
 ```
-
-Our contract is the 2nd one in the list above.
 
 ### Instantiate the Smart Contract
 
@@ -226,24 +229,25 @@ To create an instance of this project we must also provide some JSON input data,
 
 ```bash
 INIT="{\"count\": 100000000}"
-enigmacli tx compute instantiate 2 "$INIT" --from developer --label "my counter" -y
+CODE_ID=1
+enigmacli tx compute instantiate $CODE_ID "$INIT" --from a --label "my counter" -y --keyring-backend test
 ```
 
 With the contract now initialized, we can find its address
 ```bash
-enigmacli query compute list-contract-by-code 2
+enigmacli query compute list-contract-by-code 1
 ```
-Our instance is enigma1gv07846a3867ezn3uqkk082c5ftke7hpwhpqzz
+Our instance is enigma18vd8fpwxzck93qlwghaj6arh4p7c5n89d2p9uk
 
 We can query the contract state
 ```bash
-CONTRACT=enigma1gv07846a3867ezn3uqkk082c5ftke7hpwhpqzz
-enigmacli query compute contract-state smart $CONTRACT "{\"getcount\": {}}"
+CONTRACT=enigma18vd8fpwxzck93qlwghaj6arh4p7c5n89d2p9uk
+enigmacli query compute contract-state smart $CONTRACT "{\"get_count\": {}}"
 ```
 
 And we can increment our counter
 ```bash
-enigmacli tx compute execute $CONTRACT "{\"increment\": {}}" --from developer
+enigmacli tx compute execute $CONTRACT "{\"increment\": {}}" --from a --keyring-backend test
 ```
 
 ## Smart Contract
