@@ -87,19 +87,30 @@ This process is similar to `discovery init` and `discovery start` and may be str
 
 ## Setup Enigma Smart Contracts (cosmwasm)
 
-These are the steps required to get setup to use _compute_ (Enigma Blockchain's initial implementation of cosmwasm smart contracts)
+Enigma smart contracts are based on [Cosmwasm](https://www.cosmwasm.com) which is an implementation on the Cosmos network. The CosmWasm smart contracts are like Ethereum's smart contracts except they can be used on other blockchains using the [Inter Blockchain Protocol](https://cosmos.network/ibc) (IBC). CosmWasm smart contracts are written in the Rust language.
 
-1. Install Rust, using the rustup installer
+The EnigmaBlockchain has a _compute_ module that we'll use to store, query and instantiate the smart contract. Once stored on the blockchain the smart contract has to be created (or instantiated) in order to execute its methods. This is similar to doing an Ethereum `migrate` using truffle which handles the deployment and creation of a smart contract.
+
+Eventually the smart contracts will become secret contracts (in a future blockchain upgrade) running in an SGX enclave (Trusted Execution Environment) where computations are performed on the encrypted contract data (i.e. inputs, state). 
+
+Next we'll walkthrough steps to:
+- install Rust (you can check out the Rust book, rustlings course, examples and more at https://www.rust-lang.org/learn)
+- install the Rust dependencies
+- create your first project
+
+The Rust dependencies include the Rust compiler, cargo (_package manager_), toolchain and a package to generate projects (you can check out the Rust book, rustlings course, examples and more at https://www.rust-lang.org/learn).
+
+
+1. Install Rust
+
+More information about installing Rust can be found here: https://www.rust-lang.org/tools/install.
+
 ```
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-2. Install cargo generate
-```
-cargo install cargo-generate --features vendored-openssl
-```
+2. Add rustup target wasm32 for both stable and nightly
 
-3. Add rustup target wasm32 for both stable and nightly
 ```
 rustup default stable
 rustup target list --installed
@@ -109,12 +120,34 @@ rustup install nightly
 rustup target add wasm32-unknown-unknown --toolchain nightly
 ```
 
+3. Install cargo generate
+
+Cargo generate is the tool you'll use to create a smart contract project (https://doc.rust-lang.org/cargo).
+
+```
+cargo install cargo-generate --features vendored-openssl
+```
+
 ## Create Initial Smart Contract
 
-4. Generate the smart contract project
+To create the smart contract you'll:
+- generate the initial project
+- compile the smart contract
+- run unit tests
+- optimize the wasm contract bytecode to prepare for deployment
+- deploy the smart contract to your local EnigmaBlockchain
+- instantiate it with contract parameters
+
+Generate the smart contract project
+
 ```
 cargo generate --git https://github.com/confio/cosmwasm-template.git --name <your-project-name>
 ```
+
+The git project above is a cosmwasm smart contract template that implements a simple counter. The contract is created with a parameter for the initial count and allows subsequent incrementing.
+
+Change directory to the project you created and view the structure and files that were created.
+
 The generate creates a directory with the project name and has this structure:
 
 ```
@@ -124,7 +157,8 @@ Cargo.toml	Importing.md	NOTICE		README.md	rustfmt.toml	src
 
 ## Compile
 
-5. Built smart contract —> wasm (compile)
+Use the following command to compile the smart contract which produces the wasm contract file.
+
 ```
 cargo wasm
 ```
@@ -132,6 +166,7 @@ cargo wasm
 ## Unit Tests
 
 Run unit tests
+
 ```
 RUST_BACKTRACE=1 cargo unit-test
 ```
