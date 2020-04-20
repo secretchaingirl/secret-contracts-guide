@@ -25,10 +25,10 @@ $ cd EnigmaBlockchain
 
 In the same terminal, create the docker image by issuing the build command and tagging it as _enigmadev_. We'll use that tag later instead of the container id, which can be a bit cryptic and hard to remember.
 
-The command below tells Docker to follow the instructions in the Dockerfile_devnet to build the image.
+The command below tells Docker to follow the instructions in the Dockerfile_devnet file to build the image.
 
 ```
-docker build -f Dockerfile_devnet -t enigmadev .
+sudo docker build -f Dockerfile_devnet -t enigmadev .
 ```
 
 ![](docker-build.png)
@@ -36,30 +36,26 @@ docker build -f Dockerfile_devnet -t enigmadev .
 To verify the _enigmadev_ docker image was created:
 
 ```
-docker image ls enigmadev
+sudo docker image ls enigmadev
 ```
 
 Now that we've created the local EnigmaBlockchain docker image we can run it as a container:
 
 ```
-docker run -d \
+sudo docker run -d \
  -p 26657:26657 -p 26656:26656 -p 1317:1317 \
  --name enigmadev enigmadev
 ```
 
+**NOTE**: The _engimadev_ docker container can be stopped by using (in a separate terminal) `sudo docker stop enigmadev` and re-started 
+using `sudo docker start enigmadev`.
+
 ![](docker-run.png)
 
-
-**NOTE**: The _engimadev_ docker container can be stopped by using (in a separate terminal) `docker stop enigmadev` and re-started 
-using `docker start -i enigmadev`.
-
-
-At this point you're running a local EnigmaBlockchain full-node.
-
-In another terminal run a `bash` shell in the `enigmadev` container so we can view and manage the enigma keys:
+At this point you're running a local EnigmaBlockchain full-node. Let's connect to the container so we can view and manage the enigma keys:
 
 ```
-docker exec -it enigmadev /bin/bash
+sudo docker exec -it enigmadev /bin/bash
 ```
 
 The local blockchain has a couple of keys setup for you (similar to accounts if you're familiar with Truffle Ganache). The keys are stored in the `test` keyring backend, which makes it easier for local development and testing.
@@ -69,6 +65,8 @@ enigmacli keys list --keyring-backend test
 ````
 
 ![](enigmacli-keys-list.png)
+
+`exit` when you are done
 
 
 At this point you've:
@@ -80,7 +78,7 @@ At this point you've:
 3. Listed the keys/accounts 
 
 
-This process is similar to `discovery init` and `discovery start` and may be streamlined in the future.
+This process is similar to the old `discovery init` and `discovery start` and may be streamlined in the future.
 
 
 
@@ -107,6 +105,7 @@ More information about installing Rust can be found here: https://www.rust-lang.
 
 ```
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source $HOME/.cargo/env
 ```
 
 2. Add rustup target wasm32 for both stable and nightly
@@ -120,7 +119,12 @@ rustup install nightly
 rustup target add wasm32-unknown-unknown --toolchain nightly
 ```
 
-3. Install cargo generate
+3. If using linux, install build dependency
+```
+sudo apt install build-essential
+```
+
+4.. Install cargo generate
 
 Cargo generate is the tool you'll use to create a smart contract project (https://doc.rust-lang.org/cargo).
 
@@ -141,12 +145,16 @@ To create the smart contract you'll:
 Generate the smart contract project
 
 ```
-cargo generate --git https://github.com/confio/cosmwasm-template.git --name <your-project-name>
+cargo generate --git https://github.com/confio/cosmwasm-template.git --name mysimplecounter
 ```
 
 The git project above is a cosmwasm smart contract template that implements a simple counter. The contract is created with a parameter for the initial count and allows subsequent incrementing.
 
 Change directory to the project you created and view the structure and files that were created.
+
+```
+cd mysimplecounter
+```
 
 The generate creates a directory with the project name and has this structure:
 
@@ -197,7 +205,7 @@ Before deploying or storing the contract on the testnet, need to run the cosmwas
 ### Optimize compiled wasm
 
 ```
-docker run --rm -v $(pwd):/code \
+sudo docker run --rm -v $(pwd):/code \
   --mount type=volume,source=$(basename $(pwd))_cache,target=/code/target \
   --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \
   confio/cosmwasm-opt:0.7.3
@@ -212,7 +220,7 @@ The optimization creates two files:
 
 ```
 # First lets start it up again, this time mounting our project's code inside the container.
-docker run -d -p 26657:26657 -p 26656:26656 -p 1317:1317 \
+sudo docker run -d -p 26657:26657 -p 26656:26656 -p 1317:1317 \
  -v $(pwd):/root/code \
  --name enigmadev enigmadev
  ```
@@ -220,6 +228,8 @@ docker run -d -p 26657:26657 -p 26656:26656 -p 1317:1317 \
 Upload the optimized contract.wasm to the enigma-testnet:
 
 ```
+sudo docker exec -it enigmadev /bin/bash
+
 cd code
 
 enigmacli tx compute store contract.wasm --from a --gas auto -y --keyring-backend test
