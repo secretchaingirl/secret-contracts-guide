@@ -376,7 +376,7 @@ mod tests {
         let value: CountResponse = from_slice(&res).unwrap();
         assert_eq!(17, value.count);
     }
-...
+```
 
 
 ## Resources
