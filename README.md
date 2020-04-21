@@ -1,4 +1,4 @@
-# enigma-dev-x
+# Enigma Blockchain Contracts Introduction
 
 This repository can be used to get up and running on a local Enigma Blockchain developer testnet (enigmadev) to start working with the cosmwasm-based smart contracts (soon to be secret contracts!).
 
