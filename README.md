@@ -28,7 +28,10 @@ In the same terminal, create the docker image by issuing the build command and t
 The command below tells Docker to follow the instructions in the Dockerfile_devnet file to build the image.
 
 ```
-sudo docker build -f Dockerfile_devnet -t enigmadev .
+# Checkout and build with the compute module enabled, so we can deploy contracts.
+git checkout v0.1.0
+
+docker build -f Dockerfile_devnet -t enigmadev .
 ```
 
 ![](docker-build.png)
@@ -36,26 +39,26 @@ sudo docker build -f Dockerfile_devnet -t enigmadev .
 To verify the _enigmadev_ docker image was created:
 
 ```
-sudo docker image ls enigmadev
+docker image ls enigmadev
 ```
 
 Now that we've created the local EnigmaBlockchain docker image we can run it as a container:
 
 ```
-sudo docker run -d \
+docker run -d \
  -p 26657:26657 -p 26656:26656 -p 1317:1317 \
  --name enigmadev enigmadev
 ```
 
-**NOTE**: The _engimadev_ docker container can be stopped by using (in a separate terminal) `sudo docker stop enigmadev` and re-started 
-using `sudo docker start enigmadev`.
+**NOTE**: The _engimadev_ docker container can be stopped by using (in a separate terminal) `docker stop enigmadev` and re-started 
+using `docker start enigmadev`.
 
 ![](docker-run.png)
 
 At this point you're running a local EnigmaBlockchain full-node. Let's connect to the container so we can view and manage the enigma keys:
 
 ```
-sudo docker exec -it enigmadev /bin/bash
+docker exec -it enigmadev /bin/bash
 ```
 
 The local blockchain has a couple of keys setup for you (similar to accounts if you're familiar with Truffle Ganache). The keys are stored in the `test` keyring backend, which makes it easier for local development and testing.
@@ -119,12 +122,12 @@ rustup install nightly
 rustup target add wasm32-unknown-unknown --toolchain nightly
 ```
 
-3. If using linux, install build dependency
+3. If using linux, install the standard build tools:
 ```
-sudo apt install build-essential
+apt install build-essential
 ```
 
-4.. Install cargo generate
+4. Run cargo install cargo-generate
 
 Cargo generate is the tool you'll use to create a smart contract project (https://doc.rust-lang.org/cargo).
 
@@ -205,7 +208,7 @@ Before deploying or storing the contract on the testnet, need to run the cosmwas
 ### Optimize compiled wasm
 
 ```
-sudo docker run --rm -v $(pwd):/code \
+docker run --rm -v $(pwd):/code \
   --mount type=volume,source=$(basename $(pwd))_cache,target=/code/target \
   --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \
   confio/cosmwasm-opt:0.7.3
@@ -220,7 +223,7 @@ The optimization creates two files:
 
 ```
 # First lets start it up again, this time mounting our project's code inside the container.
-sudo docker run -d -p 26657:26657 -p 26656:26656 -p 1317:1317 \
+docker run -d -p 26657:26657 -p 26656:26656 -p 1317:1317 \
  -v $(pwd):/root/code \
  --name enigmadev enigmadev
  ```
@@ -228,7 +231,7 @@ sudo docker run -d -p 26657:26657 -p 26656:26656 -p 1317:1317 \
 Upload the optimized contract.wasm to the enigma-testnet:
 
 ```
-sudo docker exec -it enigmadev /bin/bash
+docker exec -it enigmadev /bin/bash
 
 cd code
 
