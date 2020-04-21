@@ -25,7 +25,7 @@ $ cd EnigmaBlockchain
 
 In the same terminal, create the docker image by issuing the build command and tagging it as _enigmadev_. We'll use that tag later instead of the container id, which can be a bit cryptic and hard to remember.
 
-The command below tells Docker to follow the instructions in the Dockerfile_devnet to build the image.
+The command below tells Docker to follow the instructions in the Dockerfile_devnet file to build the image.
 
 ```
 # Checkout and build with the compute module enabled, so we can deploy contracts.
@@ -50,16 +50,12 @@ docker run -d \
  --name enigmadev enigmadev
 ```
 
+**NOTE**: The _engimadev_ docker container can be stopped by using (in a separate terminal) `docker stop enigmadev` and re-started 
+using `docker start enigmadev`.
+
 ![](docker-run.png)
 
-
-**NOTE**: The _engimadev_ docker container can be stopped by using (in a separate terminal) `docker stop enigmadev` and re-started 
-using `docker start -i enigmadev`.
-
-
-At this point you're running a local EnigmaBlockchain full-node.
-
-In another terminal run a `bash` shell in the `enigmadev` container so we can view and manage the enigma keys:
+At this point you're running a local EnigmaBlockchain full-node. Let's connect to the container so we can view and manage the enigma keys:
 
 ```
 docker exec -it enigmadev /bin/bash
@@ -73,6 +69,8 @@ enigmacli keys list --keyring-backend test
 
 ![](enigmacli-keys-list.png)
 
+`exit` when you are done
+
 
 At this point you've:
 
@@ -83,7 +81,7 @@ At this point you've:
 3. Listed the keys/accounts 
 
 
-This process is similar to `discovery init` and `discovery start` and may be streamlined in the future.
+This process is similar to the old `discovery init` and `discovery start` and may be streamlined in the future.
 
 
 
@@ -110,6 +108,7 @@ More information about installing Rust can be found here: https://www.rust-lang.
 
 ```
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source $HOME/.cargo/env
 ```
 
 2. Add rustup target wasm32 for both stable and nightly
@@ -123,7 +122,12 @@ rustup install nightly
 rustup target add wasm32-unknown-unknown --toolchain nightly
 ```
 
-3. Install cargo generate
+3. If using linux, install the standard build tools:
+```
+apt install build-essential
+```
+
+4. Run cargo install cargo-generate
 
 Cargo generate is the tool you'll use to create a smart contract project (https://doc.rust-lang.org/cargo).
 
@@ -144,12 +148,16 @@ To create the smart contract you'll:
 Generate the smart contract project
 
 ```
-cargo generate --git https://github.com/confio/cosmwasm-template.git --name <your-project-name>
+cargo generate --git https://github.com/confio/cosmwasm-template.git --name mysimplecounter
 ```
 
 The git project above is a cosmwasm smart contract template that implements a simple counter. The contract is created with a parameter for the initial count and allows subsequent incrementing.
 
 Change directory to the project you created and view the structure and files that were created.
+
+```
+cd mysimplecounter
+```
 
 The generate creates a directory with the project name and has this structure:
 
@@ -223,6 +231,8 @@ docker run -d -p 26657:26657 -p 26656:26656 -p 1317:1317 \
 Upload the optimized contract.wasm to the enigma-testnet:
 
 ```
+docker exec -it enigmadev /bin/bash
+
 cd code
 
 enigmacli tx compute store contract.wasm --from a --gas auto -y --keyring-backend test
