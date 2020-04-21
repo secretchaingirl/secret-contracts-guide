@@ -28,6 +28,9 @@ In the same terminal, create the docker image by issuing the build command and t
 The command below tells Docker to follow the instructions in the Dockerfile_devnet to build the image.
 
 ```
+# Checkout and build with the compute module enabled, so we can deploy contracts.
+git checkout v0.1.0
+
 docker build -f Dockerfile_devnet -t enigmadev .
 ```
 
