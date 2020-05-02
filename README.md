@@ -50,7 +50,7 @@ docker run -d \
  --name enigmadev enigmadev
 ```
 
-**NOTE**: The _engimadev_ docker container can be stopped by using (in a separate terminal) `docker stop enigmadev` and re-started 
+**NOTE**: The _enigmadev_ docker container can be stopped by using (in a separate terminal) `docker stop enigmadev` and re-started 
 using `docker start enigmadev`.
 
 ![](docker-run.png)
