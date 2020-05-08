@@ -1,19 +1,18 @@
 So far we've got a [local Enigma Blockchain developer testnet running](README.md), and we've [exposed a rest API to interact with contracts with CosmWasm JS](cosmwasm-js.md).
 
-In this guide we'll build a React application, you can generate your own or clone the [CosmWasm full stack example `name-app`](https://github.com/CosmWasm/name-app) to follow along.
+In this guide we'll build a React application, you can roll your own or clone the [CosmWasm full stack example `name-app`](https://github.com/CosmWasm/name-app) to follow along.
 
-The rest server doesn't enable [Cross-Origin Resource Sharing by default](https://docs.cosmos.network/master/interfaces/rest.html#cross-origin-resource-sharing-cors), and in the current version we can't enable it, so as Cosmos Network docs suggest we run a [Nginx reverse proxy](https://github.com/levackt/devx2/blob/cb9b9206a77f9deed4f16f7b4d5a614cb38c392d/docker-compose.yaml#L17) to handle requests from our application.
+The rest server doesn't enable [Cross-Origin Resource Sharing by default](https://docs.cosmos.network/master/interfaces/rest.html#cross-origin-resource-sharing-cors), and in the current version we can't enable it, so as Cosmos Network docs suggest, we run a [proxy](https://github.com/levackt/devx2/blob/cb9b9206a77f9deed4f16f7b4d5a614cb38c392d/docker-compose.yaml#L17) to handle requests from our application.
 
-NB the [example proxy configuration](https://github.com/levackt/devx2/blob/cb9b9206a77f9deed4f16f7b4d5a614cb38c392d/config/nginx.conf#L38) is not suitable for production use.
+NB the example [proxy configuration](https://github.com/levackt/devx2/blob/cb9b9206a77f9deed4f16f7b4d5a614cb38c392d/config/nginx.conf#L38) is not suitable for production use.
 
-The proxy will also come in handy for a faucet, which will fund the user's burner wallet, also not for production use.
+The proxy also comes in handy for a faucet, to automatically fund users' accounts.
 
 # Connect with a burner-wallet
 
-In previous examples we loaded a mnemonic from file, if we did that on the front end, every user would have the same account.
+Previously we loaded the mnemonic from file, this time the "burner wallet" is kept in the browser's local storage.
 
-So instead of loading the mnemonic from file or the front end's environment, we store it in the browser's local storage.
-
+[Source](https://github.com/CosmWasm/name-app/blob/a0e2dd78625584f929fdedf964256931a3474616/src/service/sdk.ts#L18)
 ```ts
 // generateMnemonic will give you a fresh mnemonic
 // it is up to the app to store this somewhere
@@ -30,6 +29,28 @@ export function loadOrCreateMnemonic(): string {
   const generated = generateMnemonic();
   localStorage.setItem(key, generated);
   return generated;
+}
+
+export async function burnerWallet(): Promise<Wallet> {
+  const mnemonic = loadOrCreateMnemonic();
+  const pen = await Secp256k1Pen.fromMnemonic(mnemonic);
+  const pubkey = encodeSecp256k1Pubkey(pen.pubkey);
+  const address = pubkeyToAddress(pubkey, "enigma");
+  const signer = (signBytes: Uint8Array): Promise<StdSignature> => pen.sign(signBytes);
+  return { address, signer };
+}
+```
+
+[Source](https://github.com/CosmWasm/name-app/blob/a0e2dd78625584f929fdedf964256931a3474616/src/service/wallet.tsx#L39)
+
+```tsx
+
+export function BurnerWalletProvider(props: WalletProviderProps): JSX.Element {
+  return (
+    <SdkProvider config={props.config} loadWallet={burnerWallet}>
+      {props.children}
+    </SdkProvider>
+  );
 }
 ```
 
@@ -76,7 +97,11 @@ A [wallet service](https://github.com/CosmWasm/name-app/blob/master/src/service/
       .catch(setError);
 ```
 
-This connection brings us to the [contract logic](https://github.com/CosmWasm/name-app/blob/master/src/components/ContractLogic/index.tsx), starting with a list of all the instances of the Counter contract.
+In the browser's network tab we can see this play out, the account is queried but has no funds initially, then the faucet is hit, `/credit`
+
+![](images/faucet.png)
+
+With this connection in hand we can now focus on the [contract logic](https://github.com/CosmWasm/name-app/blob/master/src/components/ContractLogic/index.tsx), starting with a list of all the instances of the Counter contract.
 
 ```ts
   // get the contracts
@@ -133,7 +158,7 @@ Selecting an instance [queries it's current count](https://github.com/levackt/de
     })
 ```
 
-The Counter contract also handles reset messages, which accept a new count value, which we implement as follows;
+The Counter contract also handles reset messages, which accept a new count value, which we may implement as follows.
 
 Reset requires an integer, so first we [validate the input](https://github.com/levackt/devx2/blob/master/client/src/components/Form/validationSchema.ts) to avoid contract failures, improving the UX and saving gas.
 
