@@ -132,3 +132,7 @@ smartQuery(client, contractAddress, { get_count: {} })
 
 ```
 ![](cosmwasm-cli.png)
+
+# What's next?
+
+- [Frontend development](building-a-frontend.md)
