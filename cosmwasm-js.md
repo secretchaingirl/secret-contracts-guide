@@ -82,6 +82,8 @@ npx @cosmwasm/cli --init helpers.ts
 
 ```ts
 .editor
+// These options are needed to configure the SigningCosmWasmClient to use enigma-testnet
+
 const enigmaOptions = {
   httpUrl: "http://localhost:1317",
   networkId: "enigma-testnet",
@@ -130,3 +132,7 @@ smartQuery(client, contractAddress, { get_count: {} })
 
 ```
 ![](cosmwasm-cli.png)
+
+# What's next?
+
+- [Frontend development](building-a-frontend.md)

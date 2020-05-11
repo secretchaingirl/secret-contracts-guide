@@ -386,3 +386,8 @@ Smart Contracts in the Enigma Blockchain use cosmwasm. Therefore, for troublesho
 - [cosmwasm starter pack - project template](https://github.com/CosmWasm/cosmwasm-template)
 - [Setting up a local "testnet"](https://www.cosmwasm.com/docs/getting-started/using-the-sdk)
 - [cosmwasm docs](https://www.cosmwasm.com/docs/intro/overview) 
+
+# What's next?
+
+- [CosmWasm JS](cosmwasm-js.md)
+- [Frontend development](building-a-frontend.md)
