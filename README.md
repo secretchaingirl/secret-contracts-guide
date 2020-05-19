@@ -240,7 +240,7 @@ enigmacli tx compute store contract.wasm --from a --gas auto -y --keyring-backen
 
 ### Querying the Smart Contract and Code
 
-12. List current smart contract code
+List current smart contract code
 ```
 enigmacli query compute list-code
 [
