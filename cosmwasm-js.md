@@ -10,9 +10,9 @@ In this guide we'll use [CosmWasm JS](https://github.com/CosmWasm/cosmwasm-js), 
 ## Start the node and rest server
 
 ```bash
-# Start enigmachain
-docker run -d -p 26657:26657 -p 26656:26656 -p 1317:1317 \
- -v ~/.enigmad:/root/.enigmad -v ~/.enigmacli:/root/.enigmacli \
+# Start enigmachain from your project directory so it's mounted at /code in the container
+docker run -it --rm \
+ -p 26657:26657 -p 26656:26656 -p 1317:1317 \
  -v $(pwd):/code \
  --name enigmadev enigmadev
 ```

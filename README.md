@@ -45,18 +45,18 @@ docker image ls enigmadev
 Now that we've created the local EnigmaBlockchain docker image we can run it as a container:
 
 ```
-docker run -d \
+docker run -it --rm \
  -p 26657:26657 -p 26656:26656 -p 1317:1317 \
  --name enigmadev enigmadev
 ```
 
-**NOTE**: The _enigmadev_ docker container can be stopped by using (in a separate terminal) `docker stop enigmadev` and re-started 
-using `docker start enigmadev`.
+**NOTE**: The _enigmadev_ docker container can be stopped by CTRL+C
 
 ![](docker-run.png)
 
 At this point you're running a local EnigmaBlockchain full-node. Let's connect to the container so we can view and manage the enigma keys:
 
+**NOTE**: In a new terminal
 ```
 docker exec -it enigmadev /bin/bash
 ```
@@ -223,7 +223,8 @@ The optimization creates two files:
 
 ```
 # First lets start it up again, this time mounting our project's code inside the container.
-docker run -d -p 26657:26657 -p 26656:26656 -p 1317:1317 \
+docker run -it --rm \
+ -p 26657:26657 -p 26656:26656 -p 1317:1317 \
  -v $(pwd):/root/code \
  --name enigmadev enigmadev
  ```
