@@ -45,18 +45,18 @@ docker image ls enigmadev
 Now that we've created the local EnigmaBlockchain docker image we can run it as a container:
 
 ```
-docker run -d \
+docker run -it --rm \
  -p 26657:26657 -p 26656:26656 -p 1317:1317 \
  --name enigmadev enigmadev
 ```
 
-**NOTE**: The _enigmadev_ docker container can be stopped by using (in a separate terminal) `docker stop enigmadev` and re-started 
-using `docker start enigmadev`.
+**NOTE**: The _enigmadev_ docker container can be stopped by CTRL+C
 
 ![](docker-run.png)
 
 At this point you're running a local EnigmaBlockchain full-node. Let's connect to the container so we can view and manage the enigma keys:
 
+**NOTE**: In a new terminal
 ```
 docker exec -it enigmadev /bin/bash
 ```
@@ -223,7 +223,8 @@ The optimization creates two files:
 
 ```
 # First lets start it up again, this time mounting our project's code inside the container.
-docker run -d -p 26657:26657 -p 26656:26656 -p 1317:1317 \
+docker run -it --rm \
+ -p 26657:26657 -p 26656:26656 -p 1317:1317 \
  -v $(pwd):/root/code \
  --name enigmadev enigmadev
  ```
@@ -238,20 +239,9 @@ cd code
 enigmacli tx compute store contract.wasm --from a --gas auto -y --keyring-backend test
 ```
 
-You can also store [verified code](https://www.cosmwasm.com/docs/tooling/verify)
-
-Uploading verified code requires 2 additional params, source of the crate, and the builder that optimized the compiled wasm.
-
-```
-enigmacli tx compute store contract.wasm \
---builder="confio/cosmwasm-opt:0.7.3" \
---source="https://crates.io/api/v1/crates/<your-project-name>/0.0.1/download" \
---from a --gas auto -y
-```
-
 ### Querying the Smart Contract and Code
 
-12. List current smart contract code
+List current smart contract code
 ```
 enigmacli query compute list-code
 [
@@ -267,7 +257,7 @@ enigmacli query compute list-code
 
 ### Instantiate the Smart Contract
 
-At this point the contract's been uploaded and stored on the testnet, but there's no "instance." 
+At this point the contract's been uploaded and stored on the testnet, but there's no "instance."
 This is like `discovery migrate` which handles both the deploying and creation of the contract instance, except in Cosmos the deploy-execute process consists of 3 steps rather than 2 in Ethereum. You can read more about the logic behind this decision, and other comparisons to Solidity, in the [cosmwasm documentation](https://www.cosmwasm.com/docs/getting-started/smart-contracts). These steps are:
 1. Upload Code - Upload some optimized wasm code, no state nor contract address (example Standard ERC20 contract)
 2. Instantiate Contract - Instantiate a code reference with some initial state, creates new address (example set token name, max issuance, etc for my ERC20 token)
@@ -307,16 +297,21 @@ The source directory (`src/`) has these files:
 contract.rs  lib.rs  msg.rs  state.rs
 ```
 
-The `contract.rs` file is the one that developers modify, though I found smart contract-specific code in `state.rs` and `msg.rs`. My understanding is that the developer will modify `contract.rs` for the logic, `state.rs` for the data the contract will use as state, and  `msg.rs` to define the messages handled by the contract.
+The developer modifies `contract.rs` for contract logic, contract entry points are `init`, `handle` and `query` functions.
 
-```
-state.rs
-msg.rs
-```
+`init` in the Counter contract initializes the storage, specifically the current count and the signer/owner of the instance being initialized.
+
+We also define `handle`, a generic handler for all functions writing to storage, the counter can be incremented and reset. These functions are provided the storage and the environment, the latter's used by the `reset` function to compare the signer with the contract owner.
+
+Finally we have `query` for all functions reading state, we only have `query_count`, returning the counter state.
+
+The rest of the contract file is unit tests so you can confidently change the contract logic.
+
+The `state.rs` file defines the State struct, used for storing the contract data, the only information persisted between multiple contract calls.
 
 The `msg.rs` file is where the InitMsg parameters are specified (like a constructor), the types of Query (GetCount) and Handle[r] (Increment) messages, and any custom structs for each query response.
 
-```
+```rs
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -351,7 +346,7 @@ pub struct CountResponse {
 
 Unit tests are coded in the `contract.rs` file itself:
 
-```
+```rs
 #[cfg(test)]
 mod tests {
     use super::*;
