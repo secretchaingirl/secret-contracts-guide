@@ -7,18 +7,21 @@ In this guide we'll use [CosmWasm JS](https://github.com/CosmWasm/cosmwasm-js), 
 - [cosmwasmclient-part-2](https://medium.com/confio/cosmwasmclient-part-2-writing-dfb608f1a7f9)
 - [Introduction to CosmWasm JS](https://medium.com/confio/introduction-to-cosmwasm-js-548f58d9f6af)
 
-## Start the node and rest server
+## Start the node
 
 ```bash
-# Start enigmachain
-docker run -d -p 26657:26657 -p 26656:26656 -p 1317:1317 \
- -v ~/.enigmad:/root/.enigmad -v ~/.enigmacli:/root/.enigmacli \
+# Start enigmachain from your project directory so it's mounted at /code in the container
+docker run -it --rm \
+ -p 26657:26657 -p 26656:26656 -p 1317:1317 \
  -v $(pwd):/code \
  --name enigmadev enigmadev
 ```
 
+## Start the rest server
+This allows API access to the Enigma blockchain
+
+**NOTE**: In a new terminal
 ```bash
-# Start the rest server
 docker exec enigmadev \
   enigmacli rest-server \
   --node tcp://localhost:26657 \
