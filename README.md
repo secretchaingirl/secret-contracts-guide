@@ -4,7 +4,7 @@ This repository can be used to get up and running on a local Enigma Blockchain d
 
 A few important notes:
 - smart contracts in this repo are a precursor to Enigma's Secret Contracts, which enable data privacy
-- smart contracts are written in Rust and based on cosmwasm, and the module is referred to as `compute` in the Enigma Blockchain. This will be also true of Secret Contracts!
+- smart contracts are written in Rust and based on cosmwasm, and the module is referred to as [compute](#store-the-smart-contract-on-our-local-testnet) in the Enigma Blockchain. This will be also true of Secret Contracts!
 - these cosmwasm-based smart contracts should be reusable and easily modified once we incorporate data privacy
 
 ## Setup the Local Developer Testnet
@@ -227,7 +227,7 @@ docker run -it --rm \
  -p 26657:26657 -p 26656:26656 -p 1317:1317 \
  -v $(pwd):/root/code \
  --name enigmadev enigmadev
- ```
+```
 
 Upload the optimized contract.wasm to the enigma-testnet:
 
@@ -238,6 +238,7 @@ cd code
 
 enigmacli tx compute store contract.wasm --from a --gas auto -y --keyring-backend test
 ```
+
 
 ### Querying the Smart Contract and Code
 
