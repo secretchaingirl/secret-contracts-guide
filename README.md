@@ -103,7 +103,7 @@ To create the smart contract you'll:
 Generate the smart contract project
 
 ```
-cargo generate --git https://github.com/confio/cosmwasm-template.git --name mysimplecounter
+cargo generate --git https://github.com/enigmampc/secret-template --name mysimplecounter
 ```
 
 The git project above is a cosmwasm smart contract template that implements a simple counter. The contract is created with a parameter for the initial count and allows subsequent incrementing.
@@ -129,7 +129,7 @@ Use the following command to compile the smart contract which produces the wasm 
 cargo wasm
 ```
 
-## Unit Tests
+## Unit Tests (NB Tests in this template currently fail unless you have SGX enabled)
 
 Run unit tests
 
@@ -230,11 +230,11 @@ With the contract now initialized, we can find its address
 ```bash
 secretcli query compute list-contract-by-code 1
 ```
-Our instance is enigma18vd8fpwxzck93qlwghaj6arh4p7c5n89d2p9uk
+Our instance is secret18vd8fpwxzck93qlwghaj6arh4p7c5n8978vsyg
 
 We can query the contract state
 ```bash
-CONTRACT=enigma18vd8fpwxzck93qlwghaj6arh4p7c5n89d2p9uk
+CONTRACT=secret18vd8fpwxzck93qlwghaj6arh4p7c5n8978vsyg
 secretcli query compute contract-state smart $CONTRACT "{\"get_count\": {}}"
 ```
 
