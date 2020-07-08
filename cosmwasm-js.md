@@ -1,4 +1,4 @@
-Throughout [Enigma Blockchain Contracts Introduction](README.md) we interacted with the blockchain using enigmacli, we can also run a rest server and expose the api to any rest client. 
+Throughout [Secret Network Contracts Introduction](README.md) we interacted with the blockchain using secretcli, we can also run a rest server and expose the api to any rest client. 
 
 In this guide we'll use [CosmWasm JS](https://github.com/CosmWasm/cosmwasm-js), `an SDK for building client-side applications that connect to Cosmos SDK based blockchains with CosmWasm enabled`
 
@@ -10,20 +10,20 @@ In this guide we'll use [CosmWasm JS](https://github.com/CosmWasm/cosmwasm-js), 
 ## Start the node
 
 ```bash
-# Start enigmachain from your project directory so it's mounted at /code in the container
+# Start secretdev from your project directory so it's mounted at /code in the container
 docker run -it --rm \
  -p 26657:26657 -p 26656:26656 -p 1317:1317 \
- -v $(pwd):/code \
- --name enigmadev enigmadev
+ --name secretdev enigmampc/secret-network-bootstrap-sw:latest
 ```
 
 ## Start the rest server
-This allows API access to the Enigma blockchain
+This allows API access to the Secret Network
 
 **NOTE**: In a new terminal
 ```bash
-docker exec enigmadev \
-  enigmacli rest-server \
+
+docker exec secretdev \
+  secretcli rest-server \
   --node tcp://localhost:26657 \
   --trust-node \
   --laddr tcp://0.0.0.0:1317
@@ -92,7 +92,7 @@ const enigmaOptions = {
   networkId: "enigma-testnet",
   feeToken: "uscrt",
   gasPrice: 0.025,
-  bech32prefix: "enigma",
+  bech32prefix: "secret",
 }
 ^D
 
