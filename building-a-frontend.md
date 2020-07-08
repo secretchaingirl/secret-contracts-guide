@@ -1,4 +1,4 @@
-So far we've got a [local Enigma Blockchain developer testnet running](README.md), and we've [exposed a rest API to interact with contracts with CosmWasm JS](cosmwasm-js.md).
+So far we've got a [local Secret Network developer testnet running](README.md), and we've [exposed a rest API to interact with contracts with CosmWasm JS](cosmwasm-js.md).
 
 In this guide we'll build a React application, you can roll your own or clone the [CosmWasm full stack example `name-app`](https://github.com/CosmWasm/name-app) to follow along.
 
@@ -35,7 +35,7 @@ export async function burnerWallet(): Promise<Wallet> {
   const mnemonic = loadOrCreateMnemonic();
   const pen = await Secp256k1Pen.fromMnemonic(mnemonic);
   const pubkey = encodeSecp256k1Pubkey(pen.pubkey);
-  const address = pubkeyToAddress(pubkey, "enigma");
+  const address = pubkeyToAddress(pubkey, "secret");
   const signer = (signBytes: Uint8Array): Promise<StdSignature> => pen.sign(signBytes);
   return { address, signer };
 }
