@@ -235,6 +235,11 @@ Our instance is secret18vd8fpwxzck93qlwghaj6arh4p7c5n8978vsyg
 We can query the contract state
 ```bash
 CONTRACT=secret18vd8fpwxzck93qlwghaj6arh4p7c5n8978vsyg
+
+# NB On public testnet
+secretcli query compute query $CONTRACT "{\"get_count\": {}}"
+
+# Add if using the Docker version
 secretcli query compute contract-state smart $CONTRACT "{\"get_count\": {}}"
 ```
 
