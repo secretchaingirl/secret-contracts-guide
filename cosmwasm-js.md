@@ -65,10 +65,6 @@ const contractAddress = contracts[0].address
 
 // Query the current count
 let count = await client.queryContractSmart(contractAddress, { "get_count": {}})
-
-// Note the result is JSON, so we have to parse it
-
-JSON.parse(fromUtf8(count))
 ```
 
 ## CosmWasmClient Part 2: Writing
@@ -86,12 +82,11 @@ npx @cosmwasm/cli --init helpers.ts
 ```ts
 .editor
 // These options are needed to configure the SigningCosmWasmClient to use enigma-testnet
-
 const enigmaOptions = {
   httpUrl: "http://localhost:1317",
-  networkId: "enigma-testnet",
+  networkId: "enigma-pub-testnet-2",
   feeToken: "uscrt",
-  gasPrice: 0.025,
+  gasPrice: 1,
   bech32prefix: "secret",
 }
 ^D
@@ -121,8 +116,7 @@ const contract = await client.instantiate(codeId, initMsg, "My Counter")
 
 const contractAddress = contract.contractAddress
 
-// and because we imported the helpers, we can use smartQuery instead of client.queryContractSmart
-smartQuery(client, contractAddress, { get_count: {} })
+client.queryContractSmart(contractAddress, { get_count: {} })
 
 // The message to increment the counter requires no params
 const handleMsg = { increment: {} }
@@ -131,7 +125,7 @@ const handleMsg = { increment: {} }
 client.execute(contractAddress, handleMsg);
 
 // Query again to confirm it worked
-smartQuery(client, contractAddress, { get_count: {} })
+client.queryContractSmart(contractAddress, { get_count: {} })
 
 ```
 ![](cosmwasm-cli.png)
