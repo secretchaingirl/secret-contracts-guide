@@ -13,7 +13,7 @@ In this guide we'll use [CosmWasm JS](https://github.com/CosmWasm/cosmwasm-js), 
 # Start secretdev from your project directory so it's mounted at /code in the container
 docker run -it --rm \
  -p 26657:26657 -p 26656:26656 -p 1317:1317 \
- --name secretdev enigmampc/secret-network-bootstrap-sw:latest
+ --name secretdev enigmampc/secret-network-sw-dev:v1.0.0
 ```
 
 ## Start the rest server

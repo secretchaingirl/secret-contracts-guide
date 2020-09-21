@@ -2,11 +2,6 @@
 
 This repository can be used to get up and running on a local Secret Network developer testnet (secretdev) to start working with the cosmwasm-based smart contracts (soon to be secret contracts!).
 
-A few important notes:
-- smart contracts in this repo are a precursor to Enigma's Secret Contracts, which enable data privacy
-- smart contracts are written in Rust and based on cosmwasm, and the module is referred to as `compute` in the Secret Network!
-- these cosmwasm-based smart contracts should be reusable and easily modified once we incorporate data privacy
-
 ## Setup the Local Developer Testnet
 
 The developer blockchain is configured to run inside a docker container. Install [Docker](https://docs.docker.com/install/) for your environment (Mac, Windows, Linux).
@@ -17,7 +12,7 @@ Then start SecretNetwork, labelled _secretdev_ from here on:
 ```
 $ docker run -it --rm \
  -p 26657:26657 -p 26656:26656 -p 1317:1317 \
- --name secretdev enigmampc/secret-network-bootstrap-sw:latest
+ --name secretdev enigmampc/secret-network-sw-dev:v1.0.0
 ```
 
 **NOTE**: The _secretdev_ docker container can be stopped by CTRL+C
@@ -158,7 +153,7 @@ cargo schema
 
 ## Deploy Smart Contract
 
-Before deploying or storing the contract on the testnet, need to run the cosmwasm optimizer.
+Before deploying or storing the contract on the testnet, you need to run the [secret contract optimizer](https://hub.docker.com/r/enigmampc/secret-contract-optimizer).
 
 ### Optimize compiled wasm
 
@@ -166,11 +161,11 @@ Before deploying or storing the contract on the testnet, need to run the cosmwas
 docker run --rm -v "$(pwd)":/code \
   --mount type=volume,source="$(basename "$(pwd)")_cache",target=/code/target \
   --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \
-  cosmwasm/rust-optimizer:0.8.0  
+  enigmampc/secret-contract-optimizer  
 ```
 The contract wasm needs to be optimized to get a smaller footprint. Cosmwasm notes state the contract would be too large for the blockchain unless optimized. This example contract.wasm is 1.8M before optimizing, 90K after.
 
-The optimization creates two files:
+This creates a zip of two files:
 - contract.wasm
 - hash.txt
 
@@ -181,17 +176,17 @@ The optimization creates two files:
 docker run -it --rm \
  -p 26657:26657 -p 26656:26656 -p 1317:1317 \
  -v $(pwd):/root/code \
- --name secretdev enigmampc/secret-network-bootstrap-sw:latest
+ --name secretdev enigmampc/secret-network-sw-dev:v1.0.0
  ```
 
-Upload the optimized contract.wasm to _secretdev_ :
+Upload the optimized contract.wasm.gz:
 
 ```
 docker exec -it secretdev /bin/bash
 
 cd code
 
-secretcli tx compute store contract.wasm --from a --gas auto -y --keyring-backend test
+secretcli tx compute store contract.wasm --from a --gas 1000000 -y --keyring-backend test
 ```
 
 ### Querying the Smart Contract and Code
@@ -202,8 +197,8 @@ secretcli query compute list-code
 [
   {
     "id": 1,
-    "creator": "enigma1klqgym9m7pcvhvgsl8mf0elshyw0qhruy4aqxx",
-    "data_hash": "0C667E20BA2891536AF97802E4698BD536D9C7AB36702379C43D360AD3E40A14",
+    "creator": "secret1zy80x04d4jh4nvcqmamgjqe7whus5tcw406sna",
+    "data_hash": "D98F0CA3E8568B6B59772257E07CAC2ED31DD89466BFFAA35B09564B39484D92",
     "source": "",
     "builder": ""
   }
