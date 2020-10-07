@@ -12,7 +12,7 @@ Then start SecretNetwork, labelled _secretdev_ from here on:
 ```
 $ docker run -it --rm \
  -p 26657:26657 -p 26656:26656 -p 1317:1317 \
- --name secretdev enigmampc/secret-network-sw-dev:v1.0.0
+ --name secretdev enigmampc/secret-network-sw-dev:v1.0.2
 ```
 
 **NOTE**: The _secretdev_ docker container can be stopped by CTRL+C
