@@ -1,6 +1,8 @@
 # Secret Network Contracts Introduction
 
-This repository can be used to get up and running on a local Secret Network developer testnet (secretdev) to start working with the cosmwasm-based smart contracts (soon to be secret contracts!).
+This repository can be used to master Secret Contract development! In this document you'll find information on setting up a local Secret Network developer testnet (secretdev), learning secret contract basics and shortcuts to improve your development experience and finally build and deploy secret contracts of varying complexity with UIs to create you very own Secret Apps.
+
+To learn more about secret contracts, please visit our [documentation page](https://build.scrt.network/dev/secret-contracts.html).
 
 ## Setup the Local Developer Testnet
 
@@ -36,16 +38,10 @@ secretcli keys list --keyring-backend test
 
 `exit` when you are done
 
-## Setup Secret Contracts (cosmwasm)
+## Setup Secret Contracts
 
-Secret Contracts are based on [Cosmwasm](https://www.cosmwasm.com) which is an implementation on the Cosmos network. The CosmWasm smart contracts are like Ethereum's smart contracts except they can be used on other blockchains using the [Inter Blockchain Protocol](https://cosmos.network/ibc) (IBC). CosmWasm smart contracts are written in the Rust language.
-
-The SecretNetwork has a _compute_ module that we'll use to store, query and instantiate the smart contract. Once stored on the blockchain the smart contract has to be created (or instantiated) in order to execute its methods. This is similar to doing an Ethereum `migrate` using truffle which handles the deployment and creation of a smart contract.
-
-Eventually the smart contracts will become secret contracts (in a future blockchain upgrade) running in an SGX enclave (Trusted Execution Environment) where computations are performed on the encrypted contract data (i.e. inputs, state). 
-
-Next we'll walkthrough steps to:
-- install Rust (you can check out the Rust book, rustlings course, examples and more at https://www.rust-lang.org/learn)
+In order to setup Secret Contracts on your development environment, you will need to:
+- install Rust (you don't need to be a Rust expert to build Secret Contracts and you can check out the Rust book, rustlings course, examples to learn more at https://www.rust-lang.org/learn)
 - install the Rust dependencies
 - create your first project
 
@@ -95,7 +91,7 @@ To create the smart contract you'll:
 - deploy the smart contract to your local SecretNetwork
 - instantiate it with contract parameters
 
-Generate the smart contract project
+### Generate the smart contract project
 
 ```
 cargo generate --git https://github.com/enigmampc/secret-template --name mysimplecounter
@@ -116,7 +112,7 @@ Cargo.lock	Developing.md	LICENSE		Publishing.md	examples	schema		tests
 Cargo.toml	Importing.md	NOTICE		README.md	rustfmt.toml	src
 ```
 
-## Compile
+### Compile
 
 Use the following command to compile the smart contract which produces the wasm contract file.
 
@@ -124,15 +120,15 @@ Use the following command to compile the smart contract which produces the wasm 
 cargo wasm
 ```
 
-## Unit Tests (NB Tests in this template currently fail unless you have SGX enabled)
+### Unit Tests 
 
-Run unit tests
+#### Run unit tests
 
 ```
 RUST_BACKTRACE=1 cargo unit-test
 ```
 
-## Integration Tests
+#### Integration Tests
 
 The integration tests are under the `tests/` directory and run as:
 
@@ -140,7 +136,7 @@ The integration tests are under the `tests/` directory and run as:
 cargo integration-test
 ```
 
-## Generate Msg Schemas
+#### Generate Msg Schemas
 
 We can also generate JSON Schemas that serve as a guide for anyone trying to use the contract, to specify which arguments they need.
 
@@ -151,11 +147,11 @@ cargo schema
 ```
 
 
-## Deploy Smart Contract
+### Deploy Smart Contract
 
 Before deploying or storing the contract on the testnet, you need to run the [secret contract optimizer](https://hub.docker.com/r/enigmampc/secret-contract-optimizer).
 
-### Optimize compiled wasm
+#### Optimize compiled wasm
 
 ```
 docker run --rm -v "$(pwd)":/code \
@@ -169,7 +165,7 @@ This creates a zip of two files:
 - contract.wasm
 - hash.txt
 
-### Store the Smart Contract on our local Testnet
+#### Store the Smart Contract on our local Testnet
 
 ```
 # First lets start it up again, this time mounting our project's code inside the container.
@@ -189,7 +185,7 @@ cd code
 secretcli tx compute store contract.wasm --from a --gas 1000000 -y --keyring-backend test
 ```
 
-### Querying the Smart Contract and Code
+#### Querying the Smart Contract and Code
 
 List current smart contract code
 ```
@@ -243,7 +239,7 @@ And we can increment our counter
 secretcli tx compute execute $CONTRACT "{\"increment\": {}}" --from a --keyring-backend test
 ```
 
-## Smart Contract
+## Secret Contracts 101
 
 ### Project Structure
 
@@ -296,6 +292,10 @@ pub struct CountResponse {
 }
 
 ```
+### Secret Contract code explanation
+
+Use [this link](https://github.com/enigmampc/SecretSimpleVote/blob/master/src/contract.rs) to a see a sample voting contract and a line by line description of everything you need to know
+
 
 ### Unit Tests
 
@@ -328,16 +328,34 @@ mod tests {
     }
 ```
 
+## Secret Toolkit
+WIP
 
-## Resources
-Smart Contracts in the Secret Network use cosmwasm. Therefore, for troubleshooting and additional context, cosmwasm documentation may be very useful. Here are some of the links we relied on in putting together this guide:
+## Secret Contracts - Advanced (WIP)
+Use [this link](https://github.com/baedrik/SCRT-sealed-bid-auction) for a sealed-bid (secret) auction contract that makes use of [SNIP-20](https://github.com/enigmampc/snip20-reference-impl) and a walkthrough of the contract
+
+## Path to Secret Apps, build a UI using secret.js
+Now that we have mastered secret contract development, let's see how to connect it to a GUI and wallet support
+
+### secret.js
+WIP - need to update these for secret.js
+- [CosmWasm JS](cosmwasm-js.md)
+- [Frontend development](building-a-frontend.md)
+
+
+### Keplr integration
+WIP
+
+## Other sesources
+
+### Privacy model of secret contracts
+Secret Contracts are based on CosmWasm v0.10, but they have additional privacy properties that can only be found on Secret Network.Secret Contract developers must always consider the trade-off between privacy, user experience, performance and gas usage. Please use this [link](https://build.scrt.network/dev/privacy-model-of-secret-contracts.html) to learn more about the privacy model of secret contracts.
+
+### CosmWasm resources
+Smart Contracts in the Secret Network based based on CosmWasm. Therefore, for troubleshooting and additional context, CosmWasm documentation may be very useful. Here are some of the links we relied on in putting together this guide:
 
 - [cosmwasm repo](https://github.com/CosmWasm/cosmwasm)
 - [cosmwasm starter pack - project template](https://github.com/CosmWasm/cosmwasm-template)
 - [Setting up a local "testnet"](https://www.cosmwasm.com/docs/getting-started/using-the-sdk)
 - [cosmwasm docs](https://www.cosmwasm.com/docs/intro/overview) 
 
-# What's next?
-
-- [CosmWasm JS](cosmwasm-js.md)
-- [Frontend development](building-a-frontend.md)
