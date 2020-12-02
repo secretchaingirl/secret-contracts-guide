@@ -172,7 +172,7 @@ This creates a zip of two files:
 docker run -it --rm \
  -p 26657:26657 -p 26656:26656 -p 1317:1317 \
  -v $(pwd):/root/code \
- --name secretdev enigmampc/secret-network-sw-dev:v1.0.0
+ --name secretdev enigmampc/secret-network-sw-dev:v1.0.2
  ```
 
 Upload the optimized contract.wasm.gz:
@@ -182,7 +182,7 @@ docker exec -it secretdev /bin/bash
 
 cd code
 
-secretcli tx compute store contract.wasm --from a --gas 1000000 -y --keyring-backend test
+secretcli tx compute store contract.wasm.gz --from a --gas 1000000 -y --keyring-backend test
 ```
 
 #### Querying the Smart Contract and Code
@@ -227,11 +227,7 @@ We can query the contract state
 ```bash
 CONTRACT=secret18vd8fpwxzck93qlwghaj6arh4p7c5n8978vsyg
 
-# NB On public testnet
 secretcli query compute query $CONTRACT "{\"get_count\": {}}"
-
-# Add if using the Docker version
-secretcli query compute contract-state smart $CONTRACT "{\"get_count\": {}}"
 ```
 
 And we can increment our counter
