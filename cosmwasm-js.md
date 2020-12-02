@@ -65,7 +65,7 @@ You can run the above by installing SecretJS locally and executing the sample sc
 ```bash
 yarn
 
-node scripts/secretjs-example-writing.js
+node scripts/secretjs-example-reading.js
 ```
 
 ## SigningCosmWasmClient Part 2: Writing
@@ -120,9 +120,15 @@ client.execute(contractAddress, handleMsg);
 
 // Query again to confirm it worked
 client.queryContractSmart(contractAddress, { get_count: {} })
-
 ```
-![](cosmwasm-cli.png)
+
+You can run the above by installing SecretJS locally and executing the sample script.
+```bash
+yarn
+
+node scripts/secretjs-example-writing.js
+```
+
 
 # What's next?
 
