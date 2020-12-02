@@ -1,6 +1,6 @@
 Throughout [Secret Network Contracts Introduction](README.md) we interacted with the blockchain using secretcli, we can also run a rest server and expose the api to any rest client. 
 
-In this guide we'll use [CosmWasm JS](https://github.com/CosmWasm/cosmwasm-js), `an SDK for building client-side applications that connect to Cosmos SDK based blockchains with CosmWasm enabled`
+In this guide we'll use [SecretJS / CosmWasm JS](https://github.com/CosmWasm/cosmwasm-js), `an SDK for building client-side applications that connect to Cosmos SDK based blockchains with CosmWasm enabled`.
 
 # Resources
 - [cosmwasmclient-part-1](https://medium.com/confio/cosmwasmclient-part-1-reading-e0313472a158)
@@ -47,7 +47,14 @@ npx @cosmwasm/cli
 ```ts
 // connect to rest server
 // For reading, CosmWasmClient will suffice, we don't need to sign any transactions
+
 const client = new CosmWasmClient("http://localhost:1317")
+
+// Tp use holodeck testnet instead
+// const client = new CosmWasmClient("https://bootstrap.secrettestnet.io")
+
+// mainnet
+// const client = new CosmWasmClient("https://api.secretapi.io/")
 
 // query chain ID
 await client.getChainId()
@@ -73,7 +80,7 @@ To increment our counter and change state, we have to connect our wallet
 
 Start cosmwasm-cli
 
-This time we initialize with [helpers from cosmwasm-cli examples](https://github.com/levackt/cosmwasm-js/blob/master/packages/cli/examples/helpers.ts), and easily configure fees, create random accounts etc
+This time we initialize with [helpers from cosmwasm-cli examples](https://github.com/enigmampc/SecretNetwork/blob/master/cosmwasm-js/packages/cli/examples/helpers.ts), and easily configure fees, create random accounts etc
 
 ```bash
 npx @cosmwasm/cli --init helpers.ts
@@ -84,7 +91,7 @@ npx @cosmwasm/cli --init helpers.ts
 // These options are needed to configure the SigningCosmWasmClient to use enigma-testnet
 const enigmaOptions = {
   httpUrl: "http://localhost:1317",
-  networkId: "enigma-pub-testnet-2",
+  networkId: "enigma-pub-testnet-3",
   feeToken: "uscrt",
   gasPrice: 1,
   bech32prefix: "secret",
