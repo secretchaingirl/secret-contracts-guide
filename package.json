@@ -1,0 +1,7 @@
+{
+    "dependencies": {
+      "@cosmjs/launchpad": "^0.23.1",
+      "secretjs": "^0.10.3"
+    }
+  }
+  

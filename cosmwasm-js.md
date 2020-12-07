@@ -1,11 +1,6 @@
 Throughout [Secret Network Contracts Introduction](README.md) we interacted with the blockchain using secretcli, we can also run a rest server and expose the api to any rest client. 
 
-In this guide we'll use [CosmWasm JS](https://github.com/CosmWasm/cosmwasm-js), `an SDK for building client-side applications that connect to Cosmos SDK based blockchains with CosmWasm enabled`
-
-# Resources
-- [cosmwasmclient-part-1](https://medium.com/confio/cosmwasmclient-part-1-reading-e0313472a158)
-- [cosmwasmclient-part-2](https://medium.com/confio/cosmwasmclient-part-2-writing-dfb608f1a7f9)
-- [Introduction to CosmWasm JS](https://medium.com/confio/introduction-to-cosmwasm-js-548f58d9f6af)
+In this guide we'll use [SecretJS / CosmJS](https://github.com/cosmos/cosmjs), to power JavaScript based client solutions on Secret Network.
 
 ## Start the node
 
@@ -29,17 +24,9 @@ docker exec secretdev \
   --laddr tcp://0.0.0.0:1317
 ```
 
-## Install CosmWasm CLI 
-[Also see installation guide](https://github.com/CosmWasm/cosmwasm-js/tree/master/packages/cli#installation-and-first-run)
-
-Installing the CLI / REPL (read–eval–print loop) is optional, but does provide a handy playground for development. The script below can be executed from any Node.js script, web app or browser extension.
-
 ```bash
-# Install the cli local to your new Counter project
-yarn add @cosmwasm/cli --dev
-
-# start cosmwasm-cli
-npx @cosmwasm/cli
+# Add SecretJS to your project
+yarn add secretjs
 ```
 
 ## CosmWasmClient Part 1: Reading
@@ -47,7 +34,14 @@ npx @cosmwasm/cli
 ```ts
 // connect to rest server
 // For reading, CosmWasmClient will suffice, we don't need to sign any transactions
+
 const client = new CosmWasmClient("http://localhost:1317")
+
+// Tp use holodeck testnet instead
+// const client = new CosmWasmClient("https://bootstrap.secrettestnet.io")
+
+// mainnet
+// const client = new CosmWasmClient("https://api.secretapi.io/")
 
 // query chain ID
 await client.getChainId()
@@ -67,35 +61,35 @@ const contractAddress = contracts[0].address
 let count = await client.queryContractSmart(contractAddress, { "get_count": {}})
 ```
 
-## CosmWasmClient Part 2: Writing
-
-To increment our counter and change state, we have to connect our wallet
-
-Start cosmwasm-cli
-
-This time we initialize with [helpers from cosmwasm-cli examples](https://github.com/levackt/cosmwasm-js/blob/master/packages/cli/examples/helpers.ts), and easily configure fees, create random accounts etc
-
+You can run the above by installing SecretJS locally and executing the sample script.
 ```bash
-npx @cosmwasm/cli --init helpers.ts
+yarn
+
+node scripts/secretjs-example-reading.js
 ```
 
-```ts
-.editor
-// These options are needed to configure the SigningCosmWasmClient to use enigma-testnet
-const enigmaOptions = {
-  httpUrl: "http://localhost:1317",
-  networkId: "enigma-pub-testnet-2",
-  feeToken: "uscrt",
-  gasPrice: 1,
-  bech32prefix: "secret",
-}
-^D
+## SigningCosmWasmClient Part 2: Writing
 
+To increment our counter and change state, we have to connect a wallet, in this example we use a simple file-based wallet.
+
+```ts
 // Either load or create a mnemonic key from file foo.key
 const mnemonic = loadOrCreateMnemonic("foo.key");
 
 // connect the wallet, this time client is a SigningCosmWasmClient, in order to sign and broadcast transactions.
-const {address, client} = await connect(mnemonic, enigmaOptions);
+const signingPen = await Secp256k1Pen.fromMnemonic(MNEMONIC);
+const address = pubkeyToAddress(
+  encodeSecp256k1Pubkey(signingPen.pubkey),
+  "secret"
+);
+const txEncryptionSeed = EnigmaUtils.GenerateNewSeed();
+const client = new SigningCosmWasmClient(
+  httpUrl,
+  address,
+  (signBytes) => signingPen.sign(signBytes),
+  txEncryptionSeed, customFees
+);
+  
 
 // Check account
 await client.getAccount();
@@ -126,9 +120,15 @@ client.execute(contractAddress, handleMsg);
 
 // Query again to confirm it worked
 client.queryContractSmart(contractAddress, { get_count: {} })
-
 ```
-![](cosmwasm-cli.png)
+
+You can run the above by installing SecretJS locally and executing the sample script.
+```bash
+yarn
+
+node scripts/secretjs-example-writing.js
+```
+
 
 # What's next?
 
