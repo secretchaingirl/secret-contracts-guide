@@ -331,21 +331,24 @@ WIP
 Use [this link](https://github.com/baedrik/SCRT-sealed-bid-auction) for a sealed-bid (secret) auction contract that makes use of [SNIP-20](https://github.com/enigmampc/snip20-reference-impl) and a walkthrough of the contract
 
 ## Path to Secret Apps, build a UI using secret.js
-Now that we have mastered secret contract development, let's see how to connect it to a GUI and wallet support
+Now that we have mastered secret contract development, let's see how to connect a secret contract to a front-end using secret.js and how to add wallet functionality using Keplr.
 
 ### secret.js
-WIP - need to update these for secret.js
+Secret.js is how users interact with Secret Network. Secret.js is mostly based on CosmWasm.js. While secret.js documents are being updated, you can refer to CosmWasm.js doucments
 - [CosmWasm JS](cosmwasm-js.md)
 - [Frontend development](building-a-frontend.md)
 
 
 ### Keplr integration
-WIP
+Keplr is the web wallet users need to interact with Secret Applications. Please use [this link](https://github.com/enigmampc/SecretJS-Templates/blob/master/ReactJS%2BKeplr.js) for a sample implementation of Keplr and Secret.js
 
 ## Other sesources
 
 ### Privacy model of secret contracts
 Secret Contracts are based on CosmWasm v0.10, but they have additional privacy properties that can only be found on Secret Network.Secret Contract developers must always consider the trade-off between privacy, user experience, performance and gas usage. Please use this [link](https://build.scrt.network/dev/privacy-model-of-secret-contracts.html) to learn more about the privacy model of secret contracts.
+
+### Tutorials from Secret Network community
+Visit [this link](https://github.com/levackt/datahub-learn/tree/feature/secret/network-documentation/secret/tutorials) for all tutorials about Secret Network (WIP)
 
 ### CosmWasm resources
 Smart Contracts in the Secret Network based based on CosmWasm. Therefore, for troubleshooting and additional context, CosmWasm documentation may be very useful. Here are some of the links we relied on in putting together this guide:
