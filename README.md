@@ -327,7 +327,7 @@ mod tests {
 ## Secret Toolkit
 WIP
 
-## Secret Contracts - Advanced (WIP)
+## Secret Contracts - Advanced
 Use [this link](https://github.com/baedrik/SCRT-sealed-bid-auction) for a sealed-bid (secret) auction contract that makes use of [SNIP-20](https://github.com/enigmampc/snip20-reference-impl) and a walkthrough of the contract
 
 ## Path to Secret Apps, build a UI using secret.js
