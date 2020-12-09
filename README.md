@@ -267,7 +267,7 @@ secretcli config keyring-backend test
 
 #### Get some SCRT from the faucet
 
-Set up a key. Make sure you backup the mnemonic and the keyring password.
+Create a key for the Holodeck testnet that you'll use to get SCRT from the faucet, store and instantiate the contract, and other testnet transactions.
 
 ```bash
 secretcli keys add <your account alias>
