@@ -147,9 +147,9 @@ cargo schema
 ```
 
 
-### Deploy Smart Contract
+### Deploy Smart Contract to our local Testnet
 
-Before deploying or storing the contract on the testnet, you need to run the [secret contract optimizer](https://hub.docker.com/r/enigmampc/secret-contract-optimizer).
+Before deploying or storing the contract on a testnet, you need to run the [secret contract optimizer](https://hub.docker.com/r/enigmampc/secret-contract-optimizer).
 
 #### Optimize compiled wasm
 
@@ -165,7 +165,7 @@ This creates a zip of two files:
 - contract.wasm
 - hash.txt
 
-#### Store the Smart Contract on our local Testnet
+#### Store the Smart Contract
 
 ```
 # First lets start it up again, this time mounting our project's code inside the container.
@@ -234,6 +234,74 @@ And we can increment our counter
 ```bash
 secretcli tx compute execute $CONTRACT "{\"increment\": {}}" --from a --keyring-backend test
 ```
+
+### Deploy to the Holodeck Testnet
+
+Holodeck is the official Secret Network testnet. To deploy your contract to the testnet follow these steps:
+
+1. Install and configure the Secret Network Light Client
+2. Get some SCRT from the faucet
+3. Store the Secret Contract on Holodeck
+4. Instantiate your Secret Contract
+
+#### Install and Configure the Secret Network Light Client
+
+If you don't have the latest `secretcli`, using these [steps](https://github.com/enigmampc/SecretNetwork/blob/master/docs/testnet/install_cli.md) to download the 
+CLI and add its location to your PATH.
+
+Before deploying your contract make sure it's configured to point to an existing RPC node. You can also use the testnet bootstrap node. Set the `chain-id` to 
+`holodeck-2`. Below we've also got a config setting to point to the `test` keyring backend which allows you to interact with the testnet and your contract 
+without providing an account password each time.
+
+```bash
+secretcli config node http://bootstrap.secrettestnet.io:26657
+
+secretcli config chain-id holodeck-2
+
+secretcli config trust-node true
+
+secretcli config keyring-backend test
+```
+
+*NOTE*: To reset your `keyring-backend`, use `secretcli config keyring-backend os`.
+
+#### Get some SCRT from the faucet
+
+Set up a key. Make sure you backup the mnemonic and the keyring password.
+
+```bash
+secretcli keys add <your account alias>
+```
+
+This will output your address, a 45 character-string starting with `secret1...`. Copy/paste it to get some testnet SCRT from 
+[the faucet](https://faucet.secrettestnet.io/). 
+Continue when you have confirmed your account has some SCRT in it.
+
+#### Store the Secret Contract on Holodeck
+
+Next upload the compiled, optimized contract to the testnet.
+
+```bash
+secretcli tx compute store contract.wasm.gz --from <your account alias> -y --gas 1000000 --gas-prices=1.0uscrt
+```
+
+The result is a transaction hash (txhash). Query it to see the `code_id` in the logs, which you'll use to create an instance of the contract.
+
+```bash
+secretcli query tx <txhash>
+```
+
+#### Instantiate your Secret Contract
+
+To create an instance of your contract on Holodeck set the `CODE_ID` value below to the `code_id` you got by querying the txhash.
+
+```bash
+INIT="{\"count\": 100000000}"
+CODE_ID=<code_id>
+secretcli tx compute instantiate $CODE_ID "$INIT" --from <your account alias> --label "my counter" -y
+```
+
+You can use the testnet explorer [Transactions](http://explorer.secrettestnet.io/transactions) tab to view the contract instantiation.
 
 ## Secret Contracts 101
 
